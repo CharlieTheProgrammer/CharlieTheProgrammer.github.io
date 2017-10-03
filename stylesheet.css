@@ -1,0 +1,130 @@
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+/*     My CSS     */
+
+html, body {
+    background: indigo;
+}
+
+button {
+    font-size: calc(8px + 1vw);
+    border: 3px solid hsla(255, 100%, 25%, 1);
+    font-family: 'Anton', sans-serif;
+    letter-spacing: 3px;
+    background: hsla(265, 100%, 20%, 1);
+    color: teal;
+}
+
+#saved-timezones {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    font-size: calc(8px + 2.5vw);
+    margin-top: 1.5rem;
+}
+
+#main-clock {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 35%;
+    bottom: 50%;
+    align-items: center;
+    justify-content: center;
+}
+
+p#clock {
+    color: teal;
+    width: 90%;
+    text-align: center;
+    font-size: 18vw;
+    font-family: 'Anton', sans-serif;
+}
+
+#timezones-section {
+    border: 0px solid green;
+    display: grid;
+    margin:0 20px;
+    grid-template-columns: 20% auto auto auto;
+    grid-template-rows: auto auto;
+    grid-gap: 10px 10px;
+    grid-template-areas:
+        "timeselect timezone1 timezone2 timezone3"
+        "timeselect timezone4 timezone5 timezone6";
+}
+
+#timezones-section {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 0;
+    right: 0;
+
+}
+
+
+#timezone-selector {
+    grid-area: timeselect;
+    justify-self: left;
+    align-self: end;
+    padding: 15px;
+    letter-spacing: 3px;
+
+    /* The justify-self and align-self automatically resize the
+       width and height of the button to fit content.           */
+}
+
+.timezones {
+    visibility: ;
+}
+
+#wrapper {
+    min-height: 60px;
+}
