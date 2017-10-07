@@ -1,117 +1,109 @@
-"use strict";
-window.onload = setInterval(startClock, 1000);;
+"use strict"
 
-function startClock(){
-    //
-    var updatedCustomTime = getTimeForClock(customTime);
-    // if click event, update customTime - changeTimeZone
-    newsetTimeForClock(updatedCustomTime);
-
-//    setInterval(setTimeForClock, 1000);
-}
-
-function convertTo12HourTime(hour){
-    var updatedHour = (hour + 11) % 12 + 1;
-    return updatedHour;
-}
-
-function setTimeForClock() {
-    var date = new Date();
-    var hour = convertTo12HourTime(date);
-    var minute = date.getMinutes();
-    var second = date.getSeconds();
-    var ampm = null;
-
-    // Formatting minutes and seconds to always have 2 digits
-    minute = ("0" + minute).slice(-2);
-    second = ("0" + second).slice(-2)
-
-    if (date.getHours() <= 12) {
-        ampm = "AM";
-    } else {
-        ampm = "PM";
-    }
-
-    var str = hour.toString() + ":" +  minute.toString() + ":" + second.toString() + " " + ampm;
-    document.getElementById('clock').innerHTML = str;
-}
-
-// Gets current system time, converts it to 12 hours, and displays it on webpage.
-function getTimeForClock(customTime) {
-    var date = new Date();
-    customTime.hour = convertTo12HourTime(date.getHours());
-    customTime.minute = date.getMinutes();
-    customTime.second = date.getSeconds();
-
-    // Formatting minutes and seconds to always have 2 digits
-    customTime.minute = ("0" + customTime.minute).slice(-2);
-    customTime.second = ("0" + customTime.second).slice(-2)
-
-    if (date.getHours() <= 12) {
-        customTime.ampm = "AM";
-    } else {
-        customTime.ampm = "PM";
-    }
-
-    return customTime;
-}
-
-function newsetTimeForClock(customTime) {
-    var str = customTime.hour.toString()
-     + ":"
-     +  customTime.minute.toString()
-     + ":" + customTime.second.toString()
-     + " " + customTime.ampm;
-
-    document.getElementById('clock').innerHTML = str;
-}
-
-var customTime = {
+// Clock
+var clock = {
     hour: 0,
     minute: 0,
     second: 0,
-    ampm: 0,
-    }
-
-// Takes in current timezone, an offs
-//function setCustomTime (timezoneOffset, customTime) {
-//    customTime.hour =
-//}
-
-// Get different timezones. Find out the difference between
-// Find out current timezone and get it's UTC time.
-
-function changeTimeZone(offset) {
-    var offsets = {
+    ampm: null,
+    selectedTimezone: null,
+    systemTimezone: null,
+    availableTimezones: {
         HAST: -10,
         PST: -7,
         PDT: -7,
         MST: -6,
         CST: -5,
         EST: -4,
-    };
-
-    // Get UTC hour
-    var date = new Date();
-    var utcHour = date.getUTCHours();
-
-    // Subtract the offset from current UTC hour (UTC hour - offset)
-    var offsetDiff = utcHour - offsets[offset];
-
-    // If total is +, convert it to 12 hour time. This is technically already done for hour variable.
-    if (offsetDiff > 0) {
-        customTime.hour = convertTo12HourTime(offsetDiff);
-
     }
-    // Else, if number is negative or 0, add 24 hours to it. Then convert to 12 hours.
-    else {
-        var newHour = convertTo12HourTime(offsetDiff + 24);
-    }
-
-    return offsets.offset;
+//    savedTimezones: {
+//        saveTimezone1: [time, timezoneAbbr]
+//    }
 }
 
+function runClock() {
+    calculateClockTime(clock);
+    formatClock(clock);
+    setClock(clock);
+// Create function that checks if seconds is zero
+// if true and there are savedTimeZones (we can set a bool),
+    // for each time zone object
+    // update the minute in the object
+    // set the HTML content to the updated object
 
-// Get new time zone selection
-// Calculate new time from time zone selection
-//
+}
+
+function calculateClockTime(clock) {
+    /* This algorithm calculates the clock time by setting it to the default system clock first
+       and then checking if a new timzone has been selected. If it has, it will update the time
+       to match the selected timezone.
+
+       It uses UTC as the base hour and then calculates timezone offsets to get the desired time.
+
+       Known Issues or Comments:
+         1. It doesn't handle Daylight Savings time. Since I'm relying on straight UTC times, this
+            clock ignores locations that follow daylight savings.
+         2. This algorithm recreates the date every second in lieu of setting the time once and then
+            using counters. This seems inefficient, but I'm not sure how to optimize it at this point.
+    */
+
+    var date = new Date();
+    clock.hour = date.getHours();
+    clock.minute = date.getMinutes();
+    clock.second = date.getSeconds();
+    clock.ampm = null;
+    setAMPM(clock);
+    convertTo12HourTime(clock);
+
+    // Checks if new timezone was selected by user.
+    if (clock.selectedTimezone != clock.systemTimezone) {
+        // Subtract the offset from current UTC hour (UTC hour - offset)
+        clock.hour = date.getUTCHours() - Math.abs(clock.selectedTimezone);
+
+        if (clock.hour > 0) {
+            setAMPM(clock);
+            convertTo12HourTime(clock);
+        } else {
+            clock.hour = clock.hour + 24;
+            setAMPM(clock);
+            convertTo12HourTime(clock);
+        }
+    }
+}
+
+function setAMPM(clock) {
+    if (1 <= clock.hour  && clock.hour <= 11 | clock.hour == 24 ) {
+        clock.ampm = "AM";
+    } else if (12 <= clock.hour <= 23 ) {
+        clock.ampm = "PM";
+    }
+}
+
+// Format minutes and seconds to always have 2 digits
+function formatClock(clock) {
+    clock.minute = ("0" + clock.minute).slice(-2);
+    clock.second = ("0" + clock.second).slice(-2);
+}
+
+function convertTo12HourTime(clock) {
+    clock.hour = (clock.hour + 11) % 12 + 1;
+}
+
+function setClock(clock) {
+    var time = clock.hour.toString() + ":" +  clock.minute.toString() + ":" + clock.second.toString() + " " + clock.ampm;
+    document.getElementById('clock').innerHTML = time;
+}
+
+// If user changes timezone, adjust the timezone
+function setTimeZone(newTimezone) {
+    clock.selectedTimezone = clock.availableTimezones[newTimezone];
+}
+
+// Upon startup, set clock to system time
+var initialDate = new Date();
+clock.selectedTimezone = initialDate.getUTCHours();
+clock.systemTimezone = initialDate.getUTCHours();
+
+// Start the clock
+setInterval(runClock, 1000);
+

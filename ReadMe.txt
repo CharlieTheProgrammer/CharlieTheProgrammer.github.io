@@ -22,7 +22,7 @@ Phase II:
     - Eastern 5
 
 Phase III:
- - Add functionality to select 2 other timezones and be able to switch through them.
+ - Add functionality to save timezones and be able to switch through them.
 
 
 
@@ -42,3 +42,5 @@ then click on one of the buttons to select
 
 4. Clicking on the selector should hide the table if it's showing.
 
+
+***** Phase III *****
