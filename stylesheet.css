@@ -106,9 +106,7 @@ p#clock {
     bottom: 1.5rem;
     left: 0;
     right: 0;
-
 }
-
 
 #timezone-selector {
     grid-area: timeselect;
@@ -128,4 +126,33 @@ p#clock {
 
 #wrapper {
     min-height: 60px;
+}
+
+
+@media all and (max-width: 768px) {
+  #timezones-section {
+    border: 0px solid green;
+    display: grid;
+    margin:0 20px;
+    grid-template-columns: 50% 50%;
+    grid-template-rows: auto auto auto auto;
+    grid-gap: 10px 10px;
+    grid-template-areas:
+        "timezone1 timezone2"
+		"timezone3 timezone4"
+        "timezone5 timezone6"
+		"timeselect timeselect";
+    }
+
+  #timezone-selector {
+    grid-area: timeselect;
+    justify-self: initial;
+    align-self: initial;
+    padding: 15px;
+    letter-spacing: 3px;
+    }
+  p#clock {
+    font-size: 25vw;
+    line-height: 1.2em;
+    }
 }
