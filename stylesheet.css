@@ -68,6 +68,24 @@ button {
     justify-content: space-evenly;
     font-size: calc(8px + 2.5vw);
     margin-top: 1.5rem;
+    padding: 0 1em;
+}
+
+.saved-timezones {
+    flex-grow: 1;
+    padding: 15px;
+    margin: 0 20px;
+    text-align: center;
+    border: 1px solid teal;
+}
+
+.saved-timezones-delete {
+    flex-grow: 1;
+    padding: 15px;
+    margin: 0 20px;
+    text-align: center;
+    border: 1px solid teal;
+    color: #D50000;
 }
 
 #main-clock {
@@ -81,8 +99,11 @@ button {
     justify-content: center;
 }
 
+p { color: teal; }
+
+p:hover {color: #D50000}
+
 p#clock {
-    color: teal;
     width: 90%;
     text-align: center;
     font-size: 18vw;
@@ -97,8 +118,8 @@ p#clock {
     grid-template-rows: auto auto;
     grid-gap: 10px 10px;
     grid-template-areas:
-        "timeselect timezone1 timezone2 timezone3"
-        "timeselect timezone4 timezone5 timezone6";
+        "remove-timezone timezone1 timezone2 timezone3"
+        "add-timezone timezone4 timezone5 timezone6";
 }
 
 #timezones-section {
@@ -108,15 +129,17 @@ p#clock {
     right: 0;
 }
 
-#timezone-selector {
-    grid-area: timeselect;
-    justify-self: left;
-    align-self: end;
-    padding: 15px;
-    letter-spacing: 3px;
+#remove-timezone { grid-area: remove-timezone; }
+#add-timezone { grid-area: add-timezone; }
 
-    /* The justify-self and align-self automatically resize the
-       width and height of the button to fit content.           */
+#add-timezone, #remove-timezone {
+    letter-spacing: 3px;
+    opacity: .6;
+}
+
+#add-timezone:hover, #remove-timezone:hover {
+    letter-spacing: 3px;
+    opacity: 1;
 }
 
 .timezones {
@@ -130,29 +153,36 @@ p#clock {
 
 
 @media all and (max-width: 768px) {
+
+  #remove-timezone { grid-area: remove-timezone; }
+  #add-timezone { grid-area: add-timezone; }
+
   #timezones-section {
     border: 0px solid green;
     display: grid;
-    margin:0 20px;
+    margin:0 10px;
     grid-template-columns: 50% 50%;
     grid-template-rows: auto auto auto auto;
-    grid-gap: 10px 10px;
+    grid-gap: 5px 5px;
     grid-template-areas:
         "timezone1 timezone2"
 		"timezone3 timezone4"
         "timezone5 timezone6"
-		"timeselect timeselect";
+		"remove-timezone add-timezone";
     }
 
-  #timezone-selector {
-    grid-area: timeselect;
-    justify-self: initial;
-    align-self: initial;
+  #add-timezone {
     padding: 15px;
     letter-spacing: 3px;
     }
   p#clock {
-    font-size: 25vw;
+    font-size: 24vw;
     line-height: 1.2em;
     }
+
+  #timezones-section {
+    bottom: .5rem;
+    }
 }
+
+

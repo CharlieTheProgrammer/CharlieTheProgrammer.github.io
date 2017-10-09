@@ -10,15 +10,16 @@
   <body>
     <div id="wrapper">
       <section id="saved-timezones">
-        <p>Saved TZ 1</p>
-        <p>Saved TZ 2</p>
-        <p>Saved TZ 3</p>
+        <p class="saved-timezones">5:00 PM<br>Hawaiian</p>
+        <p class="saved-timezones">Saved TZ 2</p>
+        <p class="saved-timezones">Saved TZ 3</p>
       </section>
       <section id="main-clock">
         <p id="clock"></p>
       </section>
       <section id="timezones-section">
-        <button id="timezone-selector">Select New Time Zone</button>
+        <button id="add-timezone">Add New Time Zone</button>
+        <button id="remove-timezone">Remove Time Zones</button>
         <button id="timezone1" class="timezones" onclick="setTimeZone('HAST')">5:00 PM<br>Hawaiian</button>
         <button id="timezone2" class="timezones" onclick="setTimeZone('PST')">8:00 PM<br>Pacific</button>
         <button id="timezone3" class="timezones" onclick="setTimeZone('MST')">9:00 PM<br>Mountain</button>
