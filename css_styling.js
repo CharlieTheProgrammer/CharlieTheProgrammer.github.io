@@ -36,19 +36,35 @@ function changeSavedTimezonesTextColor() {
     }
 }
 
-// Shows or hides timezones when the 'add new time zone' button is clicked.
-var TimezoneSelector_Elem = document.getElementById('add-timezone');
-TimezoneSelector_Elem.addEventListener('click', hide_showAvailableTimezones);
 
-// Hides time zones after they have been clicked.
-var timezones_Elems = document.getElementsByClassName('timezones');
-if (timezones_Elems) {
-    for (var i = 0; i < timezones_Elems.length; i++) {
-        timezones_Elems[i].addEventListener('click', hide_showAvailableTimezones)
-    }
+function saveClock(clock) {
+    var answer = confirm('Set main clock to selected timezone?')    
+    hide_showAvailableTimezones()    
 }
 
-// Highlight saved timezone text color when remove timezone button is clicked
-var removeTimezone_Elem = document.getElementById('remove-timezone')
-removeTimezone_Elem.addEventListener('click', changeSavedTimezonesTextColor)
+// EVENT LISTENERS
 
+// Shows or hides timezones when the 'add new time zone' button is clicked.
+// var TimezoneSelector_Elem = document.getElementById('add-timezone');
+// TimezoneSelector_Elem.addEventListener('click', hide_showAvailableTimezones);
+    // jQuery example of above
+$('#add-timezone').on('click', hide_showAvailableTimezones);        // jQuery version of the above
+
+
+// Hides time zones after they have been clicked.
+// var timezones_Elems = document.getElementsByClassName('timezones');
+// if (timezones_Elems) {
+//     for (var i = 0; i < timezones_Elems.length; i++) {
+//         timezones_Elems[i].addEventListener('click', hide_showAvailableTimezones)        
+//     }
+// }
+    
+$('.timezones').on('click', saveClock)            // jQuery version of the above
+
+
+
+// Highlight saved timezone text color when remove timezone button is clicked
+// var removeTimezone_Elem = document.getElementById('remove-timezone')
+// removeTimezone_Elem.addEventListener('click', changeSavedTimezonesTextColor)
+    
+$('#remove-timezone').on('click', changeSavedTimezonesTextColor)        // jQuery version of the above

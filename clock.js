@@ -99,6 +99,15 @@ function setTimeZone(newTimezone) {
     clock.selectedTimezone = clock.availableTimezones[newTimezone];
 }
 
+
+// EVENT LISTENERS
+// Call timezone setter when timezone button is clicked
+$('.timezones').on('click', function(){
+    var dataTimezone = $(this).attr('data-timezone')  
+    setTimeZone(dataTimezone)
+})
+
+
 // Upon startup, set clock to system time
 var initialDate = new Date();
 clock.selectedTimezone = initialDate.getUTCHours();
@@ -106,4 +115,3 @@ clock.systemTimezone = initialDate.getUTCHours();
 
 // Start the clock
 setInterval(runClock, 1000);
-
