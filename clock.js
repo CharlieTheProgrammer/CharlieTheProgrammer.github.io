@@ -1,41 +1,7 @@
-"use strict"
+"use strict";
 
-// Clock
-var clock = {
-    hour: 0,
-    minute: 0,
-    second: 0,
-    ampm: null,
-    selectedTimezone: null,
-    systemTimezone: null,
-    availableTimezones: {
-        HAST: -10,
-        PST: -7,
-        PDT: -7,
-        MST: -6,
-        CST: -5,
-        EST: -4,
-    }
-//    savedTimezones: {
-//        saveTimezone1: [time, timezoneAbbr]
-//    }
-}
-
-function runClock() {
-    calculateClockTime(clock);
-    formatClock(clock);
-    setClock(clock);
-// Create function that checks if seconds is zero
-// if true and there are savedTimeZones (we can set a bool),
-    // for each time zone object
-    // update the minute in the object
-    // set the HTML content to the updated object
-
-}
-
-function calculateClockTime(clock) {
-    /* This algorithm calculates the clock time by setting it to the default system clock first
-       and then checking if a new timzone has been selected. If it has, it will update the time
+/* This application calculates the time by setting it to the default system clock first
+       and then checking if a new timezone has been selected. If it has, it will update the time
        to match the selected timezone.
 
        It uses UTC as the base hour and then calculates timezone offsets to get the desired time.
@@ -45,73 +11,173 @@ function calculateClockTime(clock) {
             clock ignores locations that follow daylight savings.
          2. This algorithm recreates the date every second in lieu of setting the time once and then
             using counters. This seems inefficient, but I'm not sure how to optimize it at this point.
-    */
+*/
 
+var clocks = {
+    hour: null,
+    minute: 0,
+    second: 0,
+    selectedTimezone: null,
+    systemTimezoneOffset: null,
+    availableTimezones: {
+        "HAST": -10,
+        "PST": -7,
+        "MST": -6,
+        "CST": -5,
+        "EST": -4
+    },
+    timezoneFullname: {
+        "HAST": "Hawaiian",
+        "PST": "Pacific",
+        "MST": "Mountain",
+        "CST": "Central",
+        "EST": "Eastern"
+    }
+};
+
+function initClocksContainer() {
     var date = new Date();
-    clock.hour = date.getHours();
-    clock.minute = date.getMinutes();
-    clock.second = date.getSeconds();
-    clock.ampm = null;
-    setAMPM(clock);
-    convertTo12HourTime(clock);
 
-    // Checks if new timezone was selected by user.
-    if (clock.selectedTimezone != clock.systemTimezone) {
-        // Subtract the offset from current UTC hour (UTC hour - offset)
-        clock.hour = date.getUTCHours() - Math.abs(clock.selectedTimezone);
+    clocks.selectedTimezone = date.getUTCHours();
+    clocks.systemTimezone = date.getUTCHours();
 
-        if (clock.hour > 0) {
-            setAMPM(clock);
-            convertTo12HourTime(clock);
+    // Sets the time's minute and second, which is shared among all times
+    clocks.minute = formatToTwoDigits(date.getMinutes());
+    clocks.second = formatToTwoDigits(date.getSeconds());
+
+    // Iterate through the hardcoded available timezones,
+    // create new nested clock objects, set hour, and set ampm
+    for (var key in clocks.availableTimezones) {
+        clocks[key] = {
+            hour: 0,
+            ampm: null,
+            selectedTimezone: key
+        };
+
+        // Calculate hour and ampm for newly added timezone
+        clocks[key].hour = date.getUTCHours() - Math.abs(clocks.availableTimezones[key]);
+
+        if (clocks[key].hour > 0) {
+            clocks[key].ampm = setAMPM(clocks[key].hour);
+            clocks[key].hour = convertTo12HourTime(clocks[key].hour);
         } else {
-            clock.hour = clock.hour + 24;
-            setAMPM(clock);
-            convertTo12HourTime(clock);
+            clocks[key].hour = clocks[key].hour + 24;
+            clocks[key].ampm = setAMPM(clocks[key].hour);
+            clocks[key].hour = convertTo12HourTime(clocks[key].hour);
+        }
+    }
+
+    // Set the main clock's time to system time
+    clocks.systemTimezoneOffset = date.getTimezoneOffset() / 60
+    var currentSysTimezone =  findCurrentTimezone(clocks.availableTimezones, clocks.systemTimezoneOffset)
+
+    // Check that system timezone is supported. Why? Because we are borrowering the hour from
+    try {
+        if (currentSysTimezone === undefined) {
+            throw "Timezone Not Supported"
+        } else {
+            // Once we have the timezone, we can set the hour
+            for (var timezone in clocks.availableTimezones) {
+                if (currentSysTimezone === clocks.availableTimezones[timezone]) {
+                    clocks.hour = calculateHour(clocks.availableTimezones[timezone])
+                    clocks.selectedTimezone = timezone
+                    break
+                }
+            }
+        }
+    }
+    catch (error) {
+        console.log(error + ":" + "This is where we could call a function to trigger warning to user")
+    }
+}
+
+function runClock() {
+    var date = new Date()
+
+    clocks.minute = formatToTwoDigits(date.getMinutes())
+    clocks.second = formatToTwoDigits(date.getSeconds())
+
+    var time = clocks.hour.toString() + ":" +  clocks.minute.toString() + ":" + clocks.second.toString()
+    time += " " + clocks[clocks.selectedTimezone].ampm;
+    document.getElementById("clock").innerHTML = time;      // This should be moved to the file that handles UI.
+
+    // Updates hours in the buttons
+    if (clocks.minute === "00" && clocks.second === "00") {
+        for (var key in clocks.availableTimezones) {
+            // Update hours for timeszones
+            clocks[key].hour = date.getUTCHours() - Math.abs(clocks.availableTimezones[key]);
+            // TODO This code block needs to be deduped, it appears elsewhere and is very similar to calculateHour.
+            if (clocks[key].hour > 0) {
+                clocks[key].ampm = setAMPM(clocks[key].hour);
+                clocks[key].hour = convertTo12HourTime(clocks[key].hour);
+            } else {
+                clocks[key].hour = clocks[key].hour + 24;
+                clocks[key].ampm = setAMPM(clocks[key].hour);
+                clocks[key].hour = convertTo12HourTime(clocks[key].hour);
+            }
+        }
+        updateHourInButtons()
+    // Updates minutes
+    } else if (clocks.second === "00") {
+        updateMinuteInButtons()
+    }
+}
+
+function calculateHour(offset){
+    var hour = 0
+    var date = new Date()
+
+    hour = date.getUTCHours() - Math.abs(offset)
+
+    if (hour > 0) {
+        hour = convertTo12HourTime(hour)
+        return hour
+    } else {
+        hour +=  24
+        hour = convertTo12HourTime(hour)
+        return hour
+    }
+}
+
+function findCurrentTimezone(timezones, matchValue) {
+
+    for (var key in timezones) {
+        if (timezones[key] * -1 === matchValue) {
+            return timezones[key]
         }
     }
 }
 
-function setAMPM(clock) {
-    if (1 <= clock.hour  && clock.hour <= 11 | clock.hour == 24 ) {
-        clock.ampm = "AM";
+function setAMPM(hour) {
+    if (1 <= hour  && hour <= 11 | hour == 24 ) {
+        return "AM";
     } else if (12 <= clock.hour <= 23 ) {
-        clock.ampm = "PM";
+        return "PM";
     }
+    /*Lesson Learned: Don't send entire objects to functions. Only send the exact parameter it needs
+    to change. Also, try to return back a value rather than modiying a global object, which is bad
+    behaviour. */
 }
 
 // Format minutes and seconds to always have 2 digits
-function formatClock(clock) {
-    clock.minute = ("0" + clock.minute).slice(-2);
-    clock.second = ("0" + clock.second).slice(-2);
+function formatToTwoDigits(number) {
+    return ("0" + number).slice(-2);
 }
 
-function convertTo12HourTime(clock) {
-    clock.hour = (clock.hour + 11) % 12 + 1;
-}
-
-function setClock(clock) {
-    var time = clock.hour.toString() + ":" +  clock.minute.toString() + ":" + clock.second.toString() + " " + clock.ampm;
-    document.getElementById('clock').innerHTML = time;
-}
-
-// If user changes timezone, adjust the timezone
-function setTimeZone(newTimezone) {
-    clock.selectedTimezone = clock.availableTimezones[newTimezone];
+function convertTo12HourTime(hour) {
+    return (hour + 11) % 12 + 1;
 }
 
 
 // EVENT LISTENERS
 // Call timezone setter when timezone button is clicked
-$('.timezones').on('click', function(){
-    var dataTimezone = $(this).attr('data-timezone')  
-    setTimeZone(dataTimezone)
+$(".timezones").on("click", function(){
+    var dataTimezone = $(this).attr("data-timezone")
+    clock.selectedTimezone = clock.availableTimezones[dataTimezone];
 })
 
+// Upon startup, initialize the clocks container.
+initClocksContainer()
 
-// Upon startup, set clock to system time
-var initialDate = new Date();
-clock.selectedTimezone = initialDate.getUTCHours();
-clock.systemTimezone = initialDate.getUTCHours();
-
-// Start the clock
+// Start the clocks
 setInterval(runClock, 1000);

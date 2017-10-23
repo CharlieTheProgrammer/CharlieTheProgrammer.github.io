@@ -145,6 +145,12 @@ p#clock {
 .timezones {
     opacity: 0;
     transition: opacity 1s ease-out;
+    visibility: hidden;
+}
+
+.activate {
+    opacity: 1;
+    visibility: visible;
 }
 
 #wrapper {
