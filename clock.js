@@ -13,13 +13,16 @@
             using counters. This seems inefficient, but I'm not sure how to optimize it at this point.
 */
 
+// This would be an instance of the singleton design pattern. There's only one object
+// and a lot of the code refers to this global object. In it's current state, there's a lot
+// of anti-patterns. Namely that several functions should be in the object rather than outside.
 var clocks = {
-    hour: null,
-    minute: 0,
-    second: 0,
-    selectedTimezone: null,
-    systemTimezoneOffset: null,
-    availableTimezones: {
+    "hour": null,
+    "minute": 0,
+    "second": 0,
+    "selectedTimezone": null,
+    "systemTimezoneOffset": null,
+    "availableTimezones": {
         "HAST": -10,
         "PST": -7,
         "MST": -6,
@@ -32,8 +35,10 @@ var clocks = {
         "MST": "Mountain",
         "CST": "Central",
         "EST": "Eastern"
-    }
+    },
+    savedTimezones: []
 };
+
 
 function initClocksContainer() {
     var date = new Date();
@@ -102,7 +107,12 @@ function runClock() {
     document.getElementById("clock").innerHTML = time;      // This should be moved to the file that handles UI.
 
     // Updates hours in the buttons
-    if (clocks.minute === "00" && clocks.second === "00") {
+    if (clocks.minute == "00" && clocks.second == "00") {
+
+        // Update the hour
+        clocks.hour = clocks.availableTimezones[clocks.selectedTimezone];
+        clocks.hour = calculateHour(clocks.hour);
+
         for (var key in clocks.availableTimezones) {
             // Update hours for timeszones
             clocks[key].hour = date.getUTCHours() - Math.abs(clocks.availableTimezones[key]);
@@ -118,12 +128,17 @@ function runClock() {
         }
         updateHourInButtons()
     // Updates minutes
-    } else if (clocks.second === "00") {
+    } else if (clocks.second == "00") {
         updateMinuteInButtons()
     }
 }
 
 function calculateHour(offset){
+    /*
+        offset: is a number corresponding a UTC offset for a given timezone
+
+    */
+
     var hour = 0
     var date = new Date()
 
@@ -139,11 +154,13 @@ function calculateHour(offset){
     }
 }
 
-function findCurrentTimezone(timezones, matchValue) {
-
-    for (var key in timezones) {
-        if (timezones[key] * -1 === matchValue) {
-            return timezones[key]
+function findCurrentTimezone(timezoneAbbreviations, matchValue) {
+/* Receives an offset and then looks up the timezone abbreviation in the
+    abbreviations list.
+ */
+    for (var key in timezoneAbbreviations) {
+        if (timezoneAbbreviations[key] * -1 === matchValue) {
+            return timezoneAbbreviations[key]
         }
     }
 }
