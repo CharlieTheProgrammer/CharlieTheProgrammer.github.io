@@ -25,7 +25,7 @@ function hide_showAvailableTimezones() {
 }
 
 
-function changeSavedTimezonesTextColor() {
+function enable_disableDeleteMode() {
     var SavedTimeszones_Query = document.querySelectorAll('.saved-timezones');
     var SavedTimeszonesDelete_Query = document.querySelectorAll('.saved-timezones-delete');
 
@@ -43,10 +43,38 @@ function changeSavedTimezonesTextColor() {
 }
 
 function deleteClock(event) {
-    console.log();
+    var list = event.target.classList;
+
+    if (list.contains("saved-timezones-delete")) {
+        var timezone = event.target.getAttribute('data-timezone')  // This will return timezone abbreviation
+
+        for (var item in clocks.savedTimezones){
+            if (clocks.savedTimezones[item].timezone == timezone) {
+                clocks.savedTimezones.splice(item, 1); // Need to remove item from saved timezones
+            }
+        }
+        event.target.remove();
+        enable_disableDeleteMode();
+        return ;
+    }
+
+    // There's an easier way, see above.
+    // for (var item = 0; item < list.length; item++) {
+    //     if (list[item] == "saved-timezones-delete") {
+    //         var timezone = event.target.getAttribute('data-timezone')  // This will return timezone abbreviation
+    //         for (var item in clocks.savedTimezones){
+    //             if (clocks.savedTimezones[item].timezone == timezone) {
+    //                 clocks.savedTimezones.splice(item, 1);
+    //             }
+    //         }
+    //         event.target.remove();
+    //         return ;
+    //     }
+    // };
 }
 
-function saveClock(eevent) {
+// TODO will also have to refactor this to use clocksCollection
+function saveClock(event) {
     var timezone = event.target.getAttribute('data-timezone')
     // Determine if current clock is already saved
     var isClockAlreadySaved = savedTimezoneDupCheck(clocks.savedTimezones, timezone)
@@ -88,14 +116,17 @@ function saveClock(eevent) {
 
 }
 
+// TODO refactor this function to use new clockCollection object or parts of it.
+// Actually, we need to see if a clock has been saved or not. We will need to add another flag via prototypes isUserSavedTimezone
+// It seems like a good idea to use prototypes and extend classes only when needed. I don't want to make isUserSavedTimezone part
+// of the object since contextually, that value is only needed for this application. In other words, not including non-crucial 
+// properties into the object itself makes that object more reusable.
 function savedTimezoneDupCheck(array, valueToCheck) {
-    if (array.length === 0)
-    {
+    if (array.length === 0) {
         return false;
     }
 
     for (var item in array) {
-        console.log("Duplicate detected " + array.timezone)
         if (array[item].timezone === valueToCheck) {
             return true;
         }
@@ -182,25 +213,30 @@ $('.timezones').on('click', saveClock)            // jQuery version of the above
 
 
 // Delete timezones when user clicks on Remove Time Zone buttons and clicks on time
-// var timezones_Elems = document.getElementsById('saved-timezones');
-// timezones_Elems.addEventListener('click', deleteClock);
+var timezones_Elems = document.getElementById('saved-timezones');
+timezones_Elems.addEventListener('click', deleteClock);
 
 //$('.saved-timezones-delete').on('click', deleteClock);          // jQuery version of this above
 
 // Highlight saved timezone text color when remove timezone button is clicked
 // var removeTimezone_Elem = document.getElementById('remove-timezone')
-// removeTimezone_Elem.addEventListener('click', changeSavedTimezonesTextColor)
+// removeTimezone_Elem.addEventListener('click', enableDeleteMode)
 
-$('#remove-timezone').on('click', changeSavedTimezonesTextColor)        // jQuery version of the above
+$('#remove-timezone').on('click', enable_disableDeleteMode)        // jQuery version of the above
 
 
 // Add click event to saved times. When user clicks on it, it should update the time
 var savedTimezones = document.getElementById('saved-timezones')
 savedTimezones.addEventListener('click', swapTime)
 
-function swapTime(e) {
+function swapTime(event) {
+    // Need to check if event is in delete mode and if it is skip swapping time
+    if (event.target.classList.contains("saved-timezones-delete")) {
+        return;
+    }
+
     // Get the hour of the saved timezone
-    var tz = e.target.getAttribute('data-timezone')
+    var tz = event.target.getAttribute('data-timezone')
     var newHour = clocks[tz].hour
     // Set the main clock's hour to the saved timezone's hour
     clocks.hour = newHour

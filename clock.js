@@ -24,7 +24,7 @@ var clocks = {
     "systemTimezoneOffset": null,
     "availableTimezones": {
         "HAST": -10,
-        "PST": -7,
+        "PST": -8,
         "MST": -6,
         "CST": -5,
         "EST": -4
@@ -76,17 +76,17 @@ function initClocksContainer() {
     clocks.systemTimezoneOffset = date.getTimezoneOffset() / 60
     var currentSysTimezone =  findCurrentTimezone(clocks.availableTimezones, clocks.systemTimezoneOffset)
 
-    // Check that system timezone is supported. Why? Because we are borrowering the hour from
+    // Check that system timezone is supported. Why?
     try {
         if (currentSysTimezone === undefined) {
-            throw "Timezone Not Supported"
+            throw new Error("Timezone Not Supported")
         } else {
             // Once we have the timezone, we can set the hour
             for (var timezone in clocks.availableTimezones) {
                 if (currentSysTimezone === clocks.availableTimezones[timezone]) {
-                    clocks.hour = calculateHour(clocks.availableTimezones[timezone])
-                    clocks.selectedTimezone = timezone
-                    break
+                    clocks.hour = calculateHour(clocks.availableTimezones[timezone]);
+                    clocks.selectedTimezone = timezone;
+                    break;
                 }
             }
         }
@@ -97,12 +97,12 @@ function initClocksContainer() {
 }
 
 function runClock() {
-    var date = new Date()
+    var date = new Date();
 
-    clocks.minute = formatToTwoDigits(date.getMinutes())
-    clocks.second = formatToTwoDigits(date.getSeconds())
+    clocks.minute = formatToTwoDigits(date.getMinutes());
+    clocks.second = formatToTwoDigits(date.getSeconds());
 
-    var time = clocks.hour.toString() + ":" +  clocks.minute.toString() + ":" + clocks.second.toString()
+    var time = clocks.hour.toString() + ":" +  clocks.minute.toString() + ":" + clocks.second.toString();
     time += " " + clocks[clocks.selectedTimezone].ampm;
     document.getElementById("clock").innerHTML = time;      // This should be moved to the file that handles UI.
 
@@ -114,7 +114,7 @@ function runClock() {
         clocks.hour = calculateHour(clocks.hour);
 
         for (var key in clocks.availableTimezones) {
-            // Update hours for timeszones
+            // Update hours for timezones
             clocks[key].hour = date.getUTCHours() - Math.abs(clocks.availableTimezones[key]);
             // TODO This code block needs to be deduped, it appears elsewhere and is very similar to calculateHour.
             if (clocks[key].hour > 0) {
@@ -126,8 +126,7 @@ function runClock() {
                 clocks[key].hour = convertTo12HourTime(clocks[key].hour);
             }
         }
-        updateHourInButtons()
-    // Updates minutes
+        updateHourInButtons();
     } else if (clocks.second == "00") {
         updateMinuteInButtons()
     }
@@ -136,7 +135,6 @@ function runClock() {
 function calculateHour(offset){
     /*
         offset: is a number corresponding a UTC offset for a given timezone
-
     */
 
     var hour = 0
@@ -166,14 +164,15 @@ function findCurrentTimezone(timezoneAbbreviations, matchValue) {
 }
 
 function setAMPM(hour) {
+    /*Lesson Learned: Don't send entire objects to functions. Only send the exact parameter it needs
+    to change. Also, try to return back a value rather than modiying a global object, which is bad
+    behaviour. */
+
     if (1 <= hour  && hour <= 11 | hour == 24 ) {
         return "AM";
     } else if (12 <= clock.hour <= 23 ) {
         return "PM";
     }
-    /*Lesson Learned: Don't send entire objects to functions. Only send the exact parameter it needs
-    to change. Also, try to return back a value rather than modiying a global object, which is bad
-    behaviour. */
 }
 
 // Format minutes and seconds to always have 2 digits
