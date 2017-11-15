@@ -73,10 +73,15 @@ button {
 
 .saved-timezones {
     flex-grow: 1;
-    padding: 15px;
+    padding: 10px;
+    font-size: calc(10px + 1vw);
     margin: 0 20px;
     text-align: center;
     border: 1px solid teal;
+}
+
+button.saved-timezones {
+    background: hsla(265, 100%, 20%, .6);
 }
 
 .saved-timezones-delete {
